@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: stores
+    // Fields: name, address, lat, lng, region, contact
+    //
+    // Collection: vehicles
+    // Fields: plate, type, capacity, status
+    //
+    // Collection: routes
+    // Fields: date, time, vehicleId, storeIds, totalKm, estimatedTime, status, createdBy
+    //
+    // Collection: scales
+    // Fields: date, category, items, createdBy, createdAt
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+        (request.auth.token.email == "agendamento@dvaatacados.com.br" && request.auth.token.email_verified == true)
+      );
+    }
+
+    function isValidStore(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.address is string && data.address.size() > 0 &&
+             data.lat is number && data.lng is number &&
+             data.type in ['Loja', 'Filial'];
+    }
+
+    function isValidVehicle(data) {
+      return data.plate is string && data.plate.size() > 0 &&
+             data.type in ['Caminhão', 'Carreta'] &&
+             data.capacity is number && data.capacity > 0 &&
+             data.status in ['Disponível', 'Em Rota', 'Manutenção'];
+    }
+
+    function isValidRoute(data) {
+      return data.date is string && data.time is string &&
+             data.vehicleId is string &&
+             data.storeIds is list &&
+             data.status in ['Agendada', 'Em Andamento', 'Concluída'];
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    match /stores/{storeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // For prototype simplicity, allow all authenticated users
+    }
+
+    match /vehicles/{vehicleId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /drivers/{driverId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /routes/{routeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /scales/{scaleId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

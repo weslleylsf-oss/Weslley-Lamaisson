@@ -1,0 +1,95 @@
+{
+  "entities": {
+    "Store": {
+      "title": "Store",
+      "description": "Lojas atendidas pelo sistema de roteirização",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Nome da loja" },
+        "address": { "type": "string", "description": "Endereço completo" },
+        "lat": { "type": "number", "description": "Latitude" },
+        "lng": { "type": "number", "description": "Longitude" },
+        "region": { "type": "string", "description": "Região administrativa (ex: Taguatinga, Ceilândia)" },
+        "contact": { "type": "string", "description": "Telefone de contato" },
+        "type": { "type": "string", "enum": ["Loja", "Filial"], "description": "Tipo de estabelecimento" }
+      },
+      "required": ["name", "address", "lat", "lng", "type"]
+    },
+    "Vehicle": {
+      "title": "Vehicle",
+      "description": "Veículos da frota (Caminhão ou Carreta)",
+      "type": "object",
+      "properties": {
+        "plate": { "type": "string", "description": "Placa do veículo" },
+        "type": { "type": "string", "enum": ["Caminhão", "Carreta"], "description": "Tipo de veículo" },
+        "capacity": { "type": "number", "description": "Capacidade em toneladas" },
+        "status": { "type": "string", "enum": ["Disponível", "Em Rota", "Manutenção"], "description": "Status atual" }
+      },
+      "required": ["plate", "type", "capacity", "status"]
+    },
+    "Driver": {
+      "title": "Driver",
+      "description": "Motoristas da frota",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Nome do motorista" },
+        "status": { "type": "string", "enum": ["Ativo", "Inativo"], "description": "Status do motorista" },
+        "lastRouteType": { "type": "string", "enum": ["Perto", "Longe"], "description": "Tipo da última rota realizada" },
+        "lastRouteDate": { "type": "string", "format": "date", "description": "Data da última rota" }
+      },
+      "required": ["name", "status"]
+    },
+    "Route": {
+      "title": "Route",
+      "description": "Rotas planejadas e executadas",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date", "description": "Data da rota" },
+        "time": { "type": "string", "description": "Horário de saída" },
+        "vehicleId": { "type": "string", "description": "ID do veículo alocado" },
+        "driverId": { "type": "string", "description": "ID do motorista alocado" },
+        "storeIds": { "type": "array", "items": { "type": "string" }, "description": "IDs das lojas na rota" },
+        "category": { "type": "string", "enum": ["Seco", "FLV"], "description": "Categoria da rota" },
+        "loadNumber": { "type": "string", "description": "Número da carga (Seco)" },
+        "separation": { "type": "string", "description": "Turno de separação (Seco)" },
+        "box": { "type": "string", "description": "Box de carregamento (Seco)" },
+        "weight": { "type": "number", "description": "Peso total" },
+        "boxes": { "type": "number", "description": "Quantidade de caixas (Seco)" },
+        "items": { "type": "number", "description": "Quantidade de itens (Seco)" },
+        "pallets": { "type": "number", "description": "Quantidade de pallets" },
+        "cross": { "type": "number", "description": "Cross (Seco/FLV)" },
+        "reverse": { "type": "number", "description": "Reversa (Seco)" },
+        "flv": { "type": "number", "description": "FLV (Seco)" },
+        "eggs": { "type": "number", "description": "Ovos (FLV)" },
+        "frozen": { "type": "number", "description": "Congelados (FLV)" },
+        "beco": { "type": "number", "description": "Beco (FLV)" },
+        "totalKm": { "type": "number", "description": "Distância total em KM" },
+        "estimatedTime": { "type": "number", "description": "Tempo estimado em minutos" },
+        "status": { "type": "string", "enum": ["Agendada", "Em Andamento", "Concluída"], "description": "Status da rota" },
+        "createdBy": { "type": "string", "description": "UID do usuário que criou a rota" },
+        "routeType": { "type": "string", "enum": ["Perto", "Longe"], "description": "Classificação da distância da rota" }
+      },
+      "required": ["date", "vehicleId", "driverId", "storeIds", "category", "status"]
+    },
+    "Scale": {
+      "title": "Scale",
+      "description": "Escala diária de distribuição",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date", "description": "Data da escala" },
+        "category": { "type": "string", "enum": ["Seco", "FLV"], "description": "Categoria da escala" },
+        "items": { "type": "array", "items": { "type": "object" }, "description": "Lista de rotas na escala" },
+        "createdBy": { "type": "string", "description": "UID do criador" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Data de criação" }
+      },
+      "required": ["date", "category", "items", "createdBy"]
+    }
+  },
+  "firestore": {
+    "/stores": { "schema": "Store", "description": "Coleção de lojas" },
+    "/vehicles": { "schema": "Vehicle", "description": "Coleção de veículos" },
+    "/drivers": { "schema": "Driver", "description": "Coleção de motoristas" },
+    "/routes": { "schema": "Route", "description": "Coleção de rotas" },
+    "/scales": { "schema": "Scale", "description": "Coleção de escalas diárias" }
+  }
+}

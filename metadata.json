@@ -1,0 +1,7 @@
+{
+  "name": "RotaBrasília - Logística Inteligente",
+  "description": "Sistema de roteirização para lojas em Brasília e entorno, com gestão de frotas e cronogramas.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
